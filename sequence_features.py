@@ -42,7 +42,7 @@ def error_demo():
     memory_res = model.predict(dataset)
     model.save('demo.h5', save_format='h5')
     del model
-    model = tf.keras.models.load_model('demo.h5', custom_objects={'SequenceFeatures': layers.DenseFeatures})
+    model = tf.keras.models.load_model('demo.h5', custom_objects={'SequenceFeatures': tf.keras.experimental.SequenceFeatures})
     loaded_res = model.predict(dataset)
     np.testing.assert_array_equal(memory_res, loaded_res)
 
