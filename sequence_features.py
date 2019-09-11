@@ -9,9 +9,11 @@ from tensorflow.keras import Model, layers
 
 
 def error_demo():
-    data = np.chararray(10, itemsize=1, unicode=True)
-    func = lambda x: [random.choice(string.ascii_letters) for i in x]
-    data = func(data)
+    def char_fill(np_arr):
+        return [random.choice(string.ascii_letters) for _ in np_arr]
+
+    char_data = np.chararray(10, itemsize=1, unicode=True)
+    data = char_fill(char_data)
     x = [np.array(data).reshape(10) for _ in range(10)]
     y = np.random.rand(10)
     df = pd.DataFrame({'features': x})
@@ -21,14 +23,11 @@ def error_demo():
 
     fc = tf.feature_column.sequence_categorical_column_with_hash_bucket('features', hash_bucket_size=5, dtype=tf.dtypes.string)
     fc = tf.feature_column.embedding_column(fc, dimension=10)
-    seq_layer_inputs = {}
-    seq_layer_inputs['features'] = tf.keras.Input(shape=(None,), name='features', dtype=tf.string)
-
+    seq_layer_inputs = {'features': tf.keras.Input(shape=(None,), name='features', dtype=tf.string)}
 
     sequence_feature_layer = tf.keras.experimental.SequenceFeatures(fc)
     sequence_input, sequence_length = sequence_feature_layer(seq_layer_inputs)
     sequence_length_mask = tf.sequence_mask(sequence_length)
-
 
     lstm = layers.Bidirectional(layers.LSTM(8))(sequence_input, mask=sequence_length_mask)
     dense = layers.Dense(16)(lstm)
